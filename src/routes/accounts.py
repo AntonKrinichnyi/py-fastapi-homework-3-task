@@ -171,7 +171,7 @@ async def reset_password(
     token_record = result.scalars().first()
     if not token_record or token_record.token != data.token:
         raise HTTPException(
-            status_code=status.http400_BAD_REQUEST,
+            status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid email or token."
         )
     expires_at = cast(datetime, token_record.expires_at).replace(tzinfo=timezone.utc)
@@ -184,7 +184,7 @@ async def reset_password(
         )
     try:
         user.password = data.password
-        await db.run_sync(lambda s: s.delete(token_record))
+        await db.delete(token_record)
         await db.commit()
     except SQLAlchemyError:
         await db.rollback()
